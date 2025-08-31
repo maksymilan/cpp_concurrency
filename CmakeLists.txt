@@ -1,0 +1,21 @@
+cmake_minimum_required(VERSION 3.12)
+
+# 项目名称
+project(cpp_concurrency)
+
+#设置 cpp 标准
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# 查找并链接线程库
+find_package(Threads REQUIRED)
+
+file(GLOB SOURCE_FILES "*.cpp")
+
+foreach(SOURCE_FILE ${SOURCE_FILES})
+    get_filename_component(TARGET_FILE ${SOURCE_FILE} NAME_WE)
+    add_executable(${TARGET_FILE} ${SOURCE_FILE})
+    target_link_libraries(${TARGET_FILE} PRIVATE Threads::Threads)
+endforeach()
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)

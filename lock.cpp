@@ -33,6 +33,7 @@ class X{
         }
         friend void swap_with_mutex(X& obj1, X& obj2);
         friend void swap_with_lock(X& obj1, X& obj2);
+        friend void swap_with_scope_lock(X& obj1, X& obj2);
 };
 
 void swap_with_mutex(X& obj1, X& obj2){
@@ -46,6 +47,11 @@ void swap_with_lock(X& obj1, X& obj2){
     std::lock_guard<std::mutex> obj1_guard(obj1.m_, std::adopt_lock);
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
     std::lock_guard<std::mutex> obj2_guard(obj2.m_, std::adopt_lock);
+    swap(obj1.obj_,obj2.obj_);
+}
+
+void swap_with_scope_lock(X& obj1, X& obj2){
+    std::scoped_lock guard(obj1.m_, obj2.m_);
     swap(obj1.obj_,obj2.obj_);
 }
 
@@ -71,12 +77,16 @@ int main(){
     X x1(ob1);
     X x2(ob2);
     // --------- mutex lock test <--- will trigger a deadlock
-    run_test(swap_with_mutex, x1, x2);
+    // run_test(swap_with_mutex, x1, x2);
     // ---------- end mutex lock test
 
     // ---------- lock test
-    run_test(swap_with_lock, x1, x2);
+    // run_test(swap_with_lock, x1, x2);
     // ---------- end lock test
+
+    // ---------- scope lock test
+    run_test(swap_with_scope_lock, x1, x2);
+    // ---------- end scope lock test
     std::cout<<"after swap:\n" << "obj1 name:\n"<< ob1.get_name() << "\n" << "obj2 name:\n"<<ob2.get_name()<<std::endl;
     return 0;
 }
